@@ -2,27 +2,33 @@ name: Automated Data Preprocessing
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
     paths:
       - "adult_raw/**"
       - "preprocessing/automate_Gilang-Swandaru.py"
-  workflow_dispatch: {}
+
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
   preprocess:
+    if: github.actor != 'github-actions[bot]'
+
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12.7"
+          python-version: "3.12"
 
       - name: Install dependencies
         run: |
@@ -38,8 +44,17 @@ jobs:
 
       - name: Commit and push preprocessed dataset
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
           git add preprocessing/adult_preprocessing
-          git diff --cached --quiet || git commit -m "chore: auto-update preprocessed dataset [skip ci]"
-          git push
+
+          # Tidak ada perubahan
+          git diff --cached --quiet && exit 0
+
+          git commit -m "chore: auto-update preprocessed dataset [skip ci]"
+
+          # Sinkronkan dengan remote
+          git pull --rebase origin main
+
+          git push origin HEAD:main
