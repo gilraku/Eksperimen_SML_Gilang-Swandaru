@@ -20,7 +20,7 @@ Eksperimen_Gilang-Swandaru.ipynb):
     7. Split data menjadi train dan test (80:20, stratified)
     8. Simpan hasil preprocessing ke CSV
 """
-
+#test push
 import os
 import argparse
 
